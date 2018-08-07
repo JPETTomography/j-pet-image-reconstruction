@@ -1,0 +1,33 @@
+{
+	"INPUT-OUTPUT":{
+		"input-data-path": "data/LAB_192_10_00_19_SI",
+		"output-file-name": "ReconstructedImage",
+		"scanner-geometry-file": "scanner/JPET_scanner_big_barrel.json"
+	},
+
+	"HIT-MAPPER-OPTIONS":{
+		"map-from": "strips_id",
+		"filter-true-events": false,
+		"save-as-ASCII": {
+			"mapped-hits": true,
+			"annihilation-points": false
+		}
+	},
+	
+	"KS-PACKAGE-OPTIONS":{
+		"optimise-H-matrix": true,
+		"normalise-by": "peak",
+		"resolution":{
+			"X": 201,
+			"Y": 101,
+			"Z": 101
+		},
+		"axis-ranges":{
+			"auto-detect": false,
+			"X": [-5.0,  15.0],
+			"Y": [-5.0,  5.0],
+			"Z": [13.75, 23.75]
+		},
+		"save-as-ASCII": false
+	}
+}

@@ -1,0 +1,28 @@
+{
+	"units":    "cm",
+	"geometry": "cylindrical",
+
+	"scintillator-strip-size": {
+		"length": 50.0,
+		"tangential-width": 0.7,
+		"radial-width": 1.9
+	},
+
+	"layers":{
+		"1":{
+			"radius": 42.5,
+			"number-of-strips": 48,
+			"angle-bias-coefficient": 0
+		}, 
+		"2":{
+			"radius": 46.75,
+			"number-of-strips": 48,
+			"angle-bias-coefficient": 1
+		},
+		"3":{
+			"radius": 57.5,
+			"number-of-strips": 96,
+			"angle-bias-coefficient": 1
+		}
+	}
+}
