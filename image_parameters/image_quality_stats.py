@@ -18,7 +18,7 @@ ROI = {'sphere22in': (-28.6, -49.54, 37., 11.0),
        'sphere13in': (-28.6, 49.54, 37., 6.5),
        'sphere10in': (28.6, 49.54, 37., 5.0)}
 
-parser = OptionParser()
+parser = OptionParser(add_help_option=False)
 
 parser.add_option("-i", "--input",
                   action="store", dest="input", metavar="PATH", type="string",
@@ -26,6 +26,7 @@ parser.add_option("-i", "--input",
 parser.add_option("-o", "--out",
                   action="store", dest="output", metavar="PATH", type="string",
                   help="Path input header interfile")
+parser.add_option("-h", "--help", action="help", help="Show this help message and exit")
 
 
 def interfile_parser(file_name):
@@ -46,11 +47,8 @@ def interfile_parser(file_name):
     except KeyError:
         raise Exception("Bad parsing Matrix size")
 
-    if param['!number format'] == 'float':
-        if param['!number of bytes per pixel'] == '4':
-            param["type"] = np.float32
-        else:
-            raise Exception("Bad number format")
+    if param['!number format'] == 'float' and param['!number of bytes per pixel'] == '4':
+        param["type"] = np.float32
     else:
         raise Exception("Bad number format")
     try:
@@ -68,8 +66,8 @@ def interfile_parser(file_name):
 
 def interfile2array(param):
     """
-    conveft interfile to numpy array
-    :param param: dict contens interfile poarametrs
+    convert interfile to numpy array
+    :param param: dict containing interfile parameterss
     :return:
     """
 
@@ -80,35 +78,8 @@ def interfile2array(param):
     return resh_arr[:, ::-1, ::-1]  # rotate
 
 
-def txt2array(file_names, pram_dict, filip=False):
-    """
-    conveft interfile to numpy array
-    :param param: dict contens interfile poarametrs
-    :return:
-    """
-    arr = np.empty((pram_dict["size_z"], pram_dict["size_xy"], pram_dict["size_xy"]))
-    i = 0
-    for file in file_names:
-        f = open(file, 'r')
-        arr[i, :, :] = np.loadtxt(f)
-        f.close()
-        i += 1
-    if flip:
-        arr = arr[:, ::-1, ::-1]
-    return arr
 
-
-def txt2interfile(file_names, pram_dict, ouput_name='test.v'):
-    """
-    Convert interfile to numpy array
-    :param param: dict contens interfile poarametrs
-    :return:
-    """
-    image = txt2array(file_names, pram_dict)
-    image.astype(np.float32).tofile(ouput_name)
-
-
-def pos2arry_index(pos, scaling_factor, size):
+def pos2array_index(pos, scaling_factor, size):
     """
     Convert position in cm to array index
     """
@@ -121,26 +92,25 @@ def get_sphere_measure(image, x0, y0, z0, r, scaling_factor_xy, scaling_factor_z
     Return mean value in  sphere, center (x0,y0,z0) with radius r
     """
 
-    idx_x0 = pos2arry_index(x0, scaling_factor_xy, size_xy)
-    idx_y0 = pos2arry_index(y0, scaling_factor_xy, size_xy)
-    idx_z0 = pos2arry_index(z0, scaling_factor_z, size_z)
-
+    idx_x0 = pos2array_index(x0, scaling_factor_xy, size_xy)
+    idx_y0 = pos2array_index(y0, scaling_factor_xy, size_xy)
+    idx_z0 = pos2array_index(z0, scaling_factor_z, size_z)
 
     radius_xy = (r * (1 / scaling_factor_xy))
     idx_radius = int(round(radius_xy))
 
-    # build metric matrix, value is distance from center of cell to cener of matrix
-    size = 2*int(round(radius_xy))+1 
-    metric_array = np.empty((size,size))
-    delta = int(size/2)
+    # build metric matrix, value is distance from center of cell to center of matrix
+    size = 2 * int(round(radius_xy)) + 1
+    metric_array = np.empty((size, size))
+    delta = int(size / 2)
     for i in range(size):
         for j in range(size):
-            metric_array[i,j] = ((i-delta)**2+(j-delta)**2)
+            metric_array[i, j] = ((i - delta) ** 2 + (j - delta) ** 2)
     # mask
-    index = metric_array<radius_xy**2 
+    index = metric_array < radius_xy ** 2
 
     roi_values_list = image[idx_z0, idx_y0 - idx_radius:idx_y0 + idx_radius + 1,
-               idx_x0 - idx_radius:idx_x0 + idx_radius + 1][
+                      idx_x0 - idx_radius:idx_x0 + idx_radius + 1][
         index].flatten()
 
     if debug:
@@ -220,7 +190,7 @@ def measure(image, params, volume_name, title=None):
     roi_mean = get_sphere_measure(image, x, y, z, r, scaling_factor_xy, scaling_factor_z, size_xy,
                                   size_z)
 
-    show_image(image[pos2arry_index(z, scaling_factor_z, size_z), :, :],
+    show_image(image[pos2array_index(z, scaling_factor_z, size_z), :, :],
                xy_lim=scaling_factor_xy * (size_xy / 2),
                norm=background_mean, zoom=1, title=title)
     logging.debug("bg_std : %.4f    bg_mean :%.4f    mean_roi %.4f", background_std,
